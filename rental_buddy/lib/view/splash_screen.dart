@@ -1,24 +1,8 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import '../auth/register_screen.dart';
+import 'package:rental_buddy/auth/login_screen.dart';
+import 'package:rental_buddy/auth/register_screen.dart';
 
-void main() {
-  runApp(const RentalBuddyApp());
-}
 
-class RentalBuddyApp extends StatelessWidget {
-  const RentalBuddyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Rental Buddy',
-      theme: ThemeData(fontFamily: 'Poppins', primarySwatch: Colors.blue),
-      home: const SplashScreen(),
-    );
-  }
-}
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -27,186 +11,225 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
-  int currentDot = 0;
-  Timer? timer;
-  bool isPressed = false;
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnim;
+  late Animation<Offset> _slideAnim;
 
   @override
   void initState() {
     super.initState();
-
-    /// Faster dot animation
-    timer = Timer.periodic(const Duration(milliseconds: 500), (_) {
-      if (mounted) {
-        setState(() {
-          currentDot = (currentDot + 1) % 3;
-        });
-      }
-    });
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _fadeAnim = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _slideAnim = Tween<Offset>(
+      begin: const Offset(0, 0.18),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _controller.forward();
   }
 
   @override
   void dispose() {
-    timer?.cancel();
+    _controller.dispose();
     super.dispose();
-  }
-
-  void goToRegister() async {
-    setState(() {
-      isPressed = true;
-    });
-
-    await Future.delayed(const Duration(milliseconds: 200));
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const RegisterScreen()),
-    );
-  }
-
-  Widget buildDot(int index) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      width: currentDot == index ? 18 : 10,
-      height: 10,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: currentDot == index
-            ? Colors.blue.shade800
-            : Colors.blue.shade100,
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF3F4F6),
+      backgroundColor: const Color(0xFFF0F4FA),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28),
-          child: Column(
-            children: [
-              const SizedBox(height: 80),
-
-              /// Logo
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade800,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blue.withOpacity(.25),
-                      blurRadius: 15,
-                      offset: const Offset(0, 8),
+        child: Column(
+          children: [
+            Expanded(
+              child: FadeTransition(
+                opacity: _fadeAnim,
+                child: SlideTransition(
+                  position: _slideAnim,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // App Icon
+                      Container(
+                        width: 110,
+                        height: 110,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1A5CBA),
+                          borderRadius: BorderRadius.circular(26),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF1A5CBA).withOpacity(0.35),
+                              blurRadius: 24,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.holiday_village_rounded,
+                          color: Colors.white,
+                          size: 58,
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      const Text(
+                        'Rental Buddy',
+                        style: TextStyle(
+                          fontSize: 34,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF0D1B2A),
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Find Your Perfect Home in the Valley',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Color(0xFF6B7A8D),
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      const SizedBox(height: 38),
+                      // Location pill
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 22,
+                          vertical: 13,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(50),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.07),
+                              blurRadius: 12,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.location_on_outlined,
+                              color: Color(0xFF1A5CBA),
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'KATHMANDU, NEPAL',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF0D1B2A),
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 50),
+                      // Dots indicator
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _dot(active: true),
+                          const SizedBox(width: 8),
+                          _dot(active: false),
+                          const SizedBox(width: 8),
+                          _dot(active: false),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Buttons
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const RegisterScreen(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1A5CBA),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Get Started',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.home_work_rounded,
-                  color: Colors.white,
-                  size: 50,
-                ),
-              ),
-
-              const SizedBox(height: 25),
-
-              const Text(
-                "Rental Buddy",
-                style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold),
-              ),
-
-              const SizedBox(height: 8),
-
-              const Text(
-                "Find Your Perfect Home in the Valley",
-                style: TextStyle(fontSize: 16, color: Colors.black54),
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: 35),
-
-              /// Location Chip
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(Icons.location_on_outlined, color: Colors.blue),
-                    SizedBox(width: 8),
-                    Text(
-                      "KATHMANDU, NEPAL",
+                  ),
+                  const SizedBox(height: 14),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const LoginScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Sign In to Account',
                       style: TextStyle(
-                        fontSize: 16,
-                        letterSpacing: 1.2,
+                        fontSize: 15,
+                        color: Color(0xFF1A5CBA),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ],
-                ),
-              ),
-
-              const Spacer(),
-
-              /// Dots
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [buildDot(0), buildDot(1), buildDot(2)],
-              ),
-
-              const SizedBox(height: 30),
-
-              /// Get Started Button
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                width: double.infinity,
-                height: 65,
-                transform: Matrix4.identity()..scale(isPressed ? 0.96 : 1.0),
-                child: ElevatedButton(
-                  onPressed: goToRegister,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade800,
-                    foregroundColor: Colors.white,
-                    elevation: isPressed ? 2 : 8,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'PREMIUM PROPERTY PORTAL',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFFAEB8C8),
+                      letterSpacing: 1.8,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  child: const Text(
-                    "Get Started",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                ),
+                  const SizedBox(height: 24),
+                ],
               ),
-
-              const SizedBox(height: 40),
-
-              const Text(
-                "PREMIUM PROPERTY PORTAL",
-                style: TextStyle(
-                  fontSize: 14,
-                  letterSpacing: 3,
-                  color: Colors.grey,
-                ),
-              ),
-
-              const SizedBox(height: 25),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _dot({required bool active}) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      width: active ? 22 : 8,
+      height: 8,
+      decoration: BoxDecoration(
+        color: active ? const Color(0xFF1A5CBA) : const Color(0xFFCAD5E2),
+        borderRadius: BorderRadius.circular(4),
       ),
     );
   }
