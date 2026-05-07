@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
-import 'home_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -31,12 +30,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      Navigator.pushAndRemoveUntil(
+      Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => HomeScreen(userName: _nameCtrl.text.trim()),
-        ),
-        (route) => false,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
     }
   }
@@ -132,9 +128,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hint: 'name@example.com',
                   icon: Icons.mail_outline,
                   keyboardType: TextInputType.emailAddress,
-                  validator: (v) => v == null || !v.contains('@')
-                      ? 'Enter valid email'
-                      : null,
+                  validator: (v) =>
+                      v == null || !v.contains('@') ? 'Enter valid email' : null,
                 ),
                 const SizedBox(height: 18),
 
@@ -169,8 +164,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   icon: Icons.lock_reset_outlined,
                   onToggle: () =>
                       setState(() => _obscureConfirm = !_obscureConfirm),
-                  validator: (v) =>
-                      v != _passCtrl.text ? 'Passwords do not match' : null,
+                  validator: (v) => v != _passCtrl.text
+                      ? 'Passwords do not match'
+                      : null,
                 ),
                 const SizedBox(height: 28),
 
@@ -321,10 +317,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF1A5CBA), width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     );
   }
@@ -367,10 +361,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF1A5CBA), width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     );
   }
