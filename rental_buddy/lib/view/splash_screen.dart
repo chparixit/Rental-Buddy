@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:rental_buddy/auth/login_screen.dart';
 import 'package:rental_buddy/auth/register_screen.dart';
 
-
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -22,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 400),
     );
     _fadeAnim = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(
@@ -30,6 +28,14 @@ class _SplashScreenState extends State<SplashScreen>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.forward();
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const RegisterScreen()),
+        );
+      }
+    });
   }
 
   @override
@@ -188,9 +194,7 @@ class _SplashScreenState extends State<SplashScreen>
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const LoginScreen(),
-                        ),
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
                       );
                     },
                     child: const Text(
