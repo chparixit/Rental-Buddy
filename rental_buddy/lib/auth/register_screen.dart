@@ -115,7 +115,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _label('FULL NAME'),
                 _inputField(
                   controller: _nameCtrl,
-                  hint: 'John Doe',
+                  hint: 'Full Name',
                   icon: Icons.person_outline,
                   validator: (v) =>
                       v == null || v.isEmpty ? 'Enter your name' : null,
@@ -125,18 +125,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _label('EMAIL'),
                 _inputField(
                   controller: _emailCtrl,
-                  hint: 'name@example.com',
+                  hint: 'Email Address',
                   icon: Icons.mail_outline,
                   keyboardType: TextInputType.emailAddress,
-                  validator: (v) =>
-                      v == null || !v.contains('@') ? 'Enter valid email' : null,
+                  validator: (v) => v == null || !v.contains('@')
+                      ? 'Enter valid email'
+                      : null,
                 ),
                 const SizedBox(height: 18),
 
                 _label('PHONE'),
                 _inputField(
                   controller: _phoneCtrl,
-                  hint: '+977 98...',
+                  hint: 'Phone Number',
                   icon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
                   validator: (v) =>
@@ -147,7 +148,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _label('PASSWORD'),
                 _passwordField(
                   controller: _passCtrl,
-                  hint: '••••••••',
+                  hint: 'Password',
                   obscure: _obscurePass,
                   icon: Icons.lock_outline,
                   onToggle: () => setState(() => _obscurePass = !_obscurePass),
@@ -159,14 +160,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _label('CONFIRM PASSWORD'),
                 _passwordField(
                   controller: _confirmCtrl,
-                  hint: '••••••••',
+                  hint: 'Confirm Password',
                   obscure: _obscureConfirm,
                   icon: Icons.lock_reset_outlined,
                   onToggle: () =>
                       setState(() => _obscureConfirm = !_obscureConfirm),
-                  validator: (v) => v != _passCtrl.text
-                      ? 'Passwords do not match'
-                      : null,
+                  validator: (v) =>
+                      v != _passCtrl.text ? 'Passwords do not match' : null,
                 ),
                 const SizedBox(height: 28),
 
@@ -317,8 +317,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF1A5CBA), width: 1.5),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
     );
   }
@@ -361,8 +363,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF1A5CBA), width: 1.5),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
     );
   }
