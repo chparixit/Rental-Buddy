@@ -1,27 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:rental_buddy/auth/login_screen.dart';
+import 'package:rental_buddy/auth/register_screen.dart';
 import 'package:rental_buddy/onboard/onboarding_screen.dart';
-import 'dart:math' as math;
-
-void main() {
-  runApp(const RentalBuddyApp());
-}
-
-class RentalBuddyApp extends StatelessWidget {
-  const RentalBuddyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Rental Buddy',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1A56A0)),
-        useMaterial3: true,
-      ),
-      home: const SplashScreen(),
-    );
-  }
-}
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
