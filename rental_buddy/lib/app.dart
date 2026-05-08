@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'view/splash_screen.dart';
+import 'package:rental_buddy/view/splash_screen.dart';
+
 import 'auth/register_screen.dart';
 
 class MyApp extends StatelessWidget {

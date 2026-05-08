@@ -1,6 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:rental_buddy/auth/login_screen.dart';
-import 'package:rental_buddy/auth/register_screen.dart';
+import 'package:rental_buddy/onboard/onboarding_screen.dart';
+import 'dart:math' as math;
+
+void main() {
+  runApp(const RentalBuddyApp());
+}
+
+class RentalBuddyApp extends StatelessWidget {
+  const RentalBuddyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Rental Buddy',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1A56A0)),
+        useMaterial3: true,
+      ),
+      home: const SplashScreen(),
+    );
+  }
+}
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -10,29 +31,94 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnim;
-  late Animation<Offset> _slideAnim;
+    with TickerProviderStateMixin {
+  late AnimationController _logoController;
+  late AnimationController _textController;
+  late AnimationController _pulseController;
+
+  late Animation<double> _logoScale;
+  late Animation<double> _logoFade;
+  late Animation<double> _textFade;
+  late Animation<Offset> _textSlide;
+  late Animation<double> _subtitleFade;
+  late Animation<Offset> _subtitleSlide;
+  late Animation<double> _pulse;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+
+    _logoController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 800),
     );
-    _fadeAnim = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _slideAnim = Tween<Offset>(
-      begin: const Offset(0, 0.18),
+
+    _textController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+
+    _logoScale = Tween<double>(begin: 0.6, end: 1.0).animate(
+      CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
+    );
+
+    _logoFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _logoController,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+      ),
+    );
+
+    _textFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _textController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeIn),
+      ),
+    );
+
+    _textSlide = Tween<Offset>(
+      begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-    _controller.forward();
-    Future.delayed(const Duration(milliseconds: 1500), () {
+    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
+
+    _subtitleFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _textController,
+        curve: const Interval(0.4, 1.0, curve: Curves.easeIn),
+      ),
+    );
+
+    _subtitleSlide =
+        Tween<Offset>(begin: const Offset(0, 0.4), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _textController,
+            curve: const Interval(0.4, 1.0, curve: Curves.easeOut),
+          ),
+        );
+
+    _pulse = Tween<double>(begin: 1.0, end: 1.06).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
+    // Sequence animations
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) _logoController.forward();
+    });
+    Future.delayed(const Duration(milliseconds: 700), () {
+      if (mounted) _textController.forward();
+    });
+
+    // Navigate after splash
+    Future.delayed(const Duration(milliseconds: 3000), () {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const RegisterScreen()),
+          MaterialPageRoute(builder: (_) => const OnboardingScreen()),
         );
       }
     });
@@ -40,183 +126,154 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _logoController.dispose();
+    _textController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F4FA),
-      body: SafeArea(
-        child: Column(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFFE8F0FB), Color(0xFFDDE8F8), Color(0xFFEAF1FC)],
+            stops: [0.0, 0.5, 1.0],
+          ),
+        ),
+        child: Stack(
           children: [
-            Expanded(
-              child: FadeTransition(
-                opacity: _fadeAnim,
-                child: SlideTransition(
-                  position: _slideAnim,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // App Icon
-                      Container(
+            // Decorative arc at top (the large circle outline visible in screenshot)
+            Positioned(
+              top: -size.width * 0.55,
+              left: -size.width * 0.2,
+              child: AnimatedBuilder(
+                animation: _pulseController,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: _pulse.value,
+                    child: Container(
+                      width: size.width * 1.4,
+                      height: size.width * 1.4,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color(0xFF1A56A0).withOpacity(0.08),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Second decorative arc
+            Positioned(
+              top: -size.width * 0.7,
+              left: -size.width * 0.35,
+              child: AnimatedBuilder(
+                animation: _pulseController,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: 2.0 - _pulse.value * 0.5,
+                    child: Container(
+                      width: size.width * 1.7,
+                      height: size.width * 1.7,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color(0xFF1A56A0).withOpacity(0.05),
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Main centered content
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // App icon
+                  FadeTransition(
+                    opacity: _logoFade,
+                    child: ScaleTransition(
+                      scale: _logoScale,
+                      child: Container(
                         width: 110,
                         height: 110,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1A5CBA),
-                          borderRadius: BorderRadius.circular(26),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(28),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF1A5CBA).withOpacity(0.35),
-                              blurRadius: 24,
-                              offset: const Offset(0, 10),
+                              color: const Color(0xFF1A56A0).withOpacity(0.12),
+                              blurRadius: 30,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 8),
+                            ),
+                            BoxShadow(
+                              color: Colors.white.withOpacity(0.8),
+                              blurRadius: 10,
+                              spreadRadius: -2,
+                              offset: const Offset(-4, -4),
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.holiday_village_rounded,
-                          color: Colors.white,
-                          size: 58,
-                        ),
+                        child: const Center(child: _HomeLocationIcon(size: 56)),
                       ),
-                      const SizedBox(height: 28),
-                      const Text(
+                    ),
+                  ),
+
+                  const SizedBox(height: 36),
+
+                  // App name
+                  FadeTransition(
+                    opacity: _textFade,
+                    child: SlideTransition(
+                      position: _textSlide,
+                      child: const Text(
                         'Rental Buddy',
                         style: TextStyle(
                           fontSize: 34,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF0D1B2A),
-                          letterSpacing: -0.5,
+                          color: Color(0xFF1A56A0),
+                          letterSpacing: 0.2,
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Find Your Perfect Home in the Valley',
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Subtitle
+                  FadeTransition(
+                    opacity: _subtitleFade,
+                    child: SlideTransition(
+                      position: _subtitleSlide,
+                      child: const Text(
+                        'Find your perfect home in\nKathmandu',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 15,
-                          color: Color(0xFF6B7A8D),
+                          fontSize: 16,
+                          color: Color(0xFF4B5563),
+                          height: 1.55,
                           fontWeight: FontWeight.w400,
                         ),
                       ),
-                      const SizedBox(height: 38),
-                      // Location pill
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 22,
-                          vertical: 13,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(50),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.07),
-                              blurRadius: 12,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.location_on_outlined,
-                              color: Color(0xFF1A5CBA),
-                              size: 20,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'KATHMANDU, NEPAL',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF0D1B2A),
-                                letterSpacing: 1.2,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 50),
-                      // Dots indicator
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _dot(active: true),
-                          const SizedBox(width: 8),
-                          _dot(active: false),
-                          const SizedBox(width: 8),
-                          _dot(active: false),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            // Buttons
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const RegisterScreen(),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1A5CBA),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Get Started',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
                     ),
                   ),
-                  const SizedBox(height: 14),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
-                      );
-                    },
-                    child: const Text(
-                      'Sign In to Account',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Color(0xFF1A5CBA),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'PREMIUM PROPERTY PORTAL',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Color(0xFFAEB8C8),
-                      letterSpacing: 1.8,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -225,16 +282,106 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
   }
+}
 
-  Widget _dot({required bool active}) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: active ? 22 : 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: active ? const Color(0xFF1A5CBA) : const Color(0xFFCAD5E2),
-        borderRadius: BorderRadius.circular(4),
-      ),
+/// Custom painter that draws a location pin with a house inside.
+class _HomeLocationIcon extends StatelessWidget {
+  final double size;
+  const _HomeLocationIcon({required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(painter: _HomeLocationPainter()),
     );
   }
+}
+
+class _HomeLocationPainter extends CustomPainter {
+  static const Color _blue = Color(0xFF1A56A0);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = _blue
+      ..style = PaintingStyle.fill;
+
+    final w = size.width;
+    final h = size.height;
+
+    // --- Draw location pin shape ---
+    final pinPath = Path();
+    final cx = w / 2;
+    final pinTop = h * 0.04;
+    final r = w * 0.42; // radius of the circular head
+    final cy = pinTop + r; // center of circle
+
+    // Circle top of pin
+    pinPath.addOval(Rect.fromCircle(center: Offset(cx, cy), radius: r));
+
+    // Triangle tail pointing down
+    final tailTop = cy + r * 0.65;
+    final tailWidth = r * 0.55;
+    pinPath.moveTo(cx - tailWidth, tailTop);
+    pinPath.quadraticBezierTo(cx, h * 0.97, cx, h * 0.97);
+    pinPath.quadraticBezierTo(cx, h * 0.97, cx + tailWidth, tailTop);
+    pinPath.close();
+
+    canvas.drawPath(pinPath, paint);
+
+    // --- White circle cutout inside pin (for house) ---
+    final innerR = r * 0.70;
+    canvas.drawCircle(Offset(cx, cy), innerR, Paint()..color = Colors.white);
+
+    // --- Draw house icon inside the white circle ---
+    final housePaint = Paint()
+      ..color = _blue
+      ..style = PaintingStyle.fill;
+
+    final houseW = innerR * 1.1;
+    final houseH = innerR * 1.0;
+    final houseLeft = cx - houseW / 2;
+    final houseTop = cy - houseH / 2 + innerR * 0.06;
+
+    // Roof (triangle)
+    final roofHeight = houseH * 0.42;
+    final roofPath = Path();
+    roofPath.moveTo(cx, houseTop); // apex
+    roofPath.lineTo(houseLeft + houseW, houseTop + roofHeight);
+    roofPath.lineTo(houseLeft, houseTop + roofHeight);
+    roofPath.close();
+    canvas.drawPath(roofPath, housePaint);
+
+    // Body (rectangle)
+    final bodyTop = houseTop + roofHeight - 1;
+    final bodyHeight = houseH * 0.52;
+    canvas.drawRect(
+      Rect.fromLTWH(
+        houseLeft + houseW * 0.08,
+        bodyTop,
+        houseW * 0.84,
+        bodyHeight,
+      ),
+      housePaint,
+    );
+
+    // Door (white cutout)
+    final doorW = houseW * 0.28;
+    final doorH = bodyHeight * 0.56;
+    final doorLeft = cx - doorW / 2;
+    final doorTop = bodyTop + bodyHeight - doorH;
+    canvas.drawRRect(
+      RRect.fromRectAndCorners(
+        Rect.fromLTWH(doorLeft, doorTop, doorW, doorH),
+        topLeft: const Radius.circular(2),
+        topRight: const Radius.circular(2),
+      ),
+      Paint()..color = Colors.white,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
