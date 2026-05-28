@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:rental_buddy/auth/login_screen.dart';
-import 'package:rental_buddy/auth/register_screen.dart';
+import 'package:rental_buddy/screens/login_screen.dart';
+import 'package:rental_buddy/screens/register_screen.dart';
 import 'package:rental_buddy/onboard/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rental_buddy/auth/login_screen.dart';
+import 'package:rental_buddy/screens/login_screen.dart';
 
 void main() {
   runApp(const RentalBuddyApp());

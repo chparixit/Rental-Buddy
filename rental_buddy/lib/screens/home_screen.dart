@@ -21,13 +21,50 @@ class _HomeScreenState extends State<HomeScreen> {
             fontSize: 26,
             fontWeight: FontWeight.w800,
             color: Color(0xFF1A56A0),
+            fontStyle: FontStyle.italic,
           ),
         ),
       ),
-      const Center(child: Text('Search', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFF1A56A0)))),
-      const Center(child: Text('Saved', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFF1A56A0)))),
-      const Center(child: Text('Messages', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFF1A56A0)))),
-      const Center(child: Text('Profile', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Color(0xFF1A56A0)))),
+      const Center(
+        child: Text(
+          'Search',
+          style: TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF1A56A0),
+          ),
+        ),
+      ),
+      const Center(
+        child: Text(
+          'Saved',
+          style: TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF1A56A0),
+          ),
+        ),
+      ),
+      const Center(
+        child: Text(
+          'Messages',
+          style: TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF1A56A0),
+          ),
+        ),
+      ),
+      const Center(
+        child: Text(
+          'Profile',
+          style: TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF1A56A0),
+          ),
+        ),
+      ),
     ];
 
     return Scaffold(
@@ -55,7 +92,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.home_rounded, color: Colors.white, size: 18),
+                  child: const Icon(
+                    Icons.home_rounded,
+                    color: Colors.white,
+                    size: 18,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 const Expanded(
@@ -65,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
+                      fontFamily: 'OpenSans',
                     ),
                   ),
                 ),
@@ -99,8 +141,14 @@ class _HomeScreenState extends State<HomeScreen> {
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
-        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 11),
+        selectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 11,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 11,
+        ),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
