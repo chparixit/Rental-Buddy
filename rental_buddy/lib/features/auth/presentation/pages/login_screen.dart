@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:rental_buddy/screens/home_screen.dart';
+import 'package:rental_buddy/features/dashboard/home_screen.dart';
+
 import 'register_screen.dart';
 
 
