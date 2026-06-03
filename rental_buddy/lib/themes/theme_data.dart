@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:rental_buddy/screens/home_screen.dart';
 
 class AppTheme {
   // Colors
@@ -41,20 +40,48 @@ class AppTheme {
 
       // Text Theme
       textTheme: const TextTheme(
-        displayLarge: TextStyle(fontFamily: 'OpenSans', fontWeight: FontWeight.w800, color: primary),
-        displayMedium: TextStyle(fontFamily: 'OpenSans', fontWeight: FontWeight.w800, color: primary),
-        titleLarge: TextStyle(fontFamily: 'OpenSans', fontWeight: FontWeight.w700, color: primary),
-        titleMedium: TextStyle(fontFamily: 'OpenSans', fontWeight: FontWeight.w600, color: primary),
-        bodyLarge: TextStyle(fontFamily: 'OpenSans', fontWeight: FontWeight.w400),
-        bodyMedium: TextStyle(fontFamily: 'OpenSans', fontWeight: FontWeight.w400),
-        labelLarge: TextStyle(fontFamily: 'OpenSans', fontWeight: FontWeight.w700),
+        displayLarge: TextStyle(
+          fontFamily: 'OpenSans',
+          fontWeight: FontWeight.w800,
+          color: primary,
+        ),
+        displayMedium: TextStyle(
+          fontFamily: 'OpenSans',
+          fontWeight: FontWeight.w800,
+          color: primary,
+        ),
+        titleLarge: TextStyle(
+          fontFamily: 'OpenSans',
+          fontWeight: FontWeight.w700,
+          color: primary,
+        ),
+        titleMedium: TextStyle(
+          fontFamily: 'OpenSans',
+          fontWeight: FontWeight.w600,
+          color: primary,
+        ),
+        bodyLarge: TextStyle(
+          fontFamily: 'OpenSans',
+          fontWeight: FontWeight.w400,
+        ),
+        bodyMedium: TextStyle(
+          fontFamily: 'OpenSans',
+          fontWeight: FontWeight.w400,
+        ),
+        labelLarge: TextStyle(
+          fontFamily: 'OpenSans',
+          fontWeight: FontWeight.w700,
+        ),
       ),
 
       // Input Decoration
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
