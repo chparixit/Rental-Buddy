@@ -1,46 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:rental_buddy/features/dashboard/home_screen.dart';
-
 import 'register_screen.dart';
 
+// ---------- State ----------
 
-class LoginScreen extends StatefulWidget {
+class LoginFormState {
+  final String email;
+  final String password;
+  final bool obscurePass;
+
+  const LoginFormState({
+    this.email = '',
+    this.password = '',
+    this.obscurePass = true,
+  });
+
+  LoginFormState copyWith({
+    String? email,
+    String? password,
+    bool? obscurePass,
+  }) {
+    return LoginFormState(
+      email: email ?? this.email,
+      password: password ?? this.password,
+      obscurePass: obscurePass ?? this.obscurePass,
+    );
+  }
+}
+
+class LoginFormNotifier extends StateNotifier<LoginFormState> {
+  LoginFormNotifier() : super(const LoginFormState());
+
+  void setEmail(String value) => state = state.copyWith(email: value);
+  void setPassword(String value) => state = state.copyWith(password: value);
+  void toggleObscure() =>
+      state = state.copyWith(obscurePass: !state.obscurePass);
+}
+
+final loginFormProvider =
+    StateNotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>(
+  (ref) => LoginFormNotifier(),
+);
+
+// ---------- Screen ----------
+
+class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formKey = GlobalKey<FormState>();
+    final formState = ref.watch(loginFormProvider);
+    final notifier = ref.read(loginFormProvider.notifier);
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailCtrl = TextEditingController();
-  final _passCtrl = TextEditingController();
-  bool _obscurePass = true;
+    final emailCtrl = TextEditingController(text: formState.email);
+    final passCtrl = TextEditingController(text: formState.password);
 
-  @override
-  void dispose() {
-    _emailCtrl.dispose();
-    _passCtrl.dispose();
-    super.dispose();
-  }
-
-  void _login() {
-    if (_formKey.currentState!.validate()) {
-      // Extract name from email for greeting
-      final emailPart = _emailCtrl.text.trim().split('@').first;
-      final name = emailPart.isNotEmpty
-          ? emailPart[0].toUpperCase() + emailPart.substring(1)
-          : 'User';
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => HomeScreen(userName: name)),
-        (route) => false,
-      );
+    void login() {
+      if (formKey.currentState!.validate()) {
+        final emailPart = formState.email.trim().split('@').first;
+        final name = emailPart.isNotEmpty
+            ? emailPart[0].toUpperCase() + emailPart.substring(1)
+            : 'User';
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => HomeScreen(userName: name)),
+          (route) => false,
+        );
+      }
     }
-  }
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4FA),
       body: SafeArea(
@@ -102,14 +133,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   padding: const EdgeInsets.all(24),
                   child: Form(
-                    key: _formKey,
+                    key: formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _label('EMAIL ADDRESS'),
                         TextFormField(
-                          controller: _emailCtrl,
+                          controller: emailCtrl,
                           keyboardType: TextInputType.emailAddress,
+                          onChanged: notifier.setEmail,
                           validator: (v) => v == null || !v.contains('@')
                               ? 'Enter valid email'
                               : null,
@@ -143,24 +175,23 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                         TextFormField(
-                          controller: _passCtrl,
-                          obscureText: _obscurePass,
-                          validator: (v) => v == null || v.isEmpty
-                              ? 'Enter password'
-                              : null,
+                          controller: passCtrl,
+                          obscureText: formState.obscurePass,
+                          onChanged: notifier.setPassword,
+                          validator: (v) =>
+                              v == null || v.isEmpty ? 'Enter password' : null,
                           decoration: _inputDecoration(
                             hint: '••••••••',
                             icon: Icons.lock_outline,
                             suffix: IconButton(
                               icon: Icon(
-                                _obscurePass
+                                formState.obscurePass
                                     ? Icons.visibility_outlined
                                     : Icons.visibility_off_outlined,
                                 color: const Color(0xFFAEB8C8),
                                 size: 20,
                               ),
-                              onPressed: () =>
-                                  setState(() => _obscurePass = !_obscurePass),
+                              onPressed: notifier.toggleObscure,
                             ),
                           ),
                         ),
@@ -170,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: double.infinity,
                           height: 52,
                           child: ElevatedButton(
-                            onPressed: _login,
+                            onPressed: login,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF1A5CBA),
                               foregroundColor: Colors.white,
@@ -235,7 +266,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFFE2E8F0)),
+                              side:
+                                  const BorderSide(color: Color(0xFFE2E8F0)),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -260,8 +292,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const RegisterScreen(),
-                      ),
+                          builder: (_) => const RegisterScreen()),
                     ),
                     child: const Text(
                       'Register Now',
@@ -275,7 +306,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Map footer
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
@@ -352,9 +382,11 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF1A5CBA), width: 1.5),
+        borderSide:
+            const BorderSide(color: Color(0xFF1A5CBA), width: 1.5),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     );
   }
 }
