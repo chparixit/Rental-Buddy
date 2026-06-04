@@ -1,44 +1,89 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'login_screen.dart';
 
-class RegisterScreen extends StatefulWidget {
+// ---------- State ----------
+
+class RegisterFormState {
+  final String name;
+  final String email;
+  final String phone;
+  final String password;
+  final String confirmPassword;
+  final bool obscurePass;
+  final bool obscureConfirm;
+
+  const RegisterFormState({
+    this.name = '',
+    this.email = '',
+    this.phone = '',
+    this.password = '',
+    this.confirmPassword = '',
+    this.obscurePass = true,
+    this.obscureConfirm = true,
+  });
+
+  RegisterFormState copyWith({
+    String? name,
+    String? email,
+    String? phone,
+    String? password,
+    String? confirmPassword,
+    bool? obscurePass,
+    bool? obscureConfirm,
+  }) {
+    return RegisterFormState(
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      password: password ?? this.password,
+      confirmPassword: confirmPassword ?? this.confirmPassword,
+      obscurePass: obscurePass ?? this.obscurePass,
+      obscureConfirm: obscureConfirm ?? this.obscureConfirm,
+    );
+  }
+}
+
+class RegisterFormNotifier extends StateNotifier<RegisterFormState> {
+  RegisterFormNotifier() : super(const RegisterFormState());
+
+  void setName(String v) => state = state.copyWith(name: v);
+  void setEmail(String v) => state = state.copyWith(email: v);
+  void setPhone(String v) => state = state.copyWith(phone: v);
+  void setPassword(String v) => state = state.copyWith(password: v);
+  void setConfirmPassword(String v) => state = state.copyWith(confirmPassword: v);
+  void toggleObscurePass() =>
+      state = state.copyWith(obscurePass: !state.obscurePass);
+  void toggleObscureConfirm() =>
+      state = state.copyWith(obscureConfirm: !state.obscureConfirm);
+}
+
+final registerFormProvider =
+    StateNotifierProvider.autoDispose<RegisterFormNotifier, RegisterFormState>(
+  (ref) => RegisterFormNotifier(),
+);
+
+// ---------- Screen ----------
+
+class RegisterScreen extends ConsumerWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formKey = GlobalKey<FormState>();
+    final formState = ref.watch(registerFormProvider);
+    final notifier = ref.read(registerFormProvider.notifier);
 
-class _RegisterScreenState extends State<RegisterScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameCtrl = TextEditingController();
-  final _emailCtrl = TextEditingController();
-  final _phoneCtrl = TextEditingController();
-  final _passCtrl = TextEditingController();
-  final _confirmCtrl = TextEditingController();
-  bool _obscurePass = true;
-  bool _obscureConfirm = true;
-
-  @override
-  void dispose() {
-    _nameCtrl.dispose();
-    _emailCtrl.dispose();
-    _phoneCtrl.dispose();
-    _passCtrl.dispose();
-    _confirmCtrl.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+    void submit() {
+      if (formKey.currentState!.validate()) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
+      }
     }
-  }
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4FA),
       appBar: AppBar(
@@ -46,11 +91,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         elevation: 0,
         automaticallyImplyLeading: false,
         titleSpacing: 20,
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.location_on, color: Color(0xFF1A5CBA), size: 20),
-            const SizedBox(width: 6),
-            const Text(
+            Icon(Icons.location_on, color: Color(0xFF1A5CBA), size: 20),
+            SizedBox(width: 6),
+            Text(
               'Rental Buddy',
               style: TextStyle(
                 color: Color(0xFF1A5CBA),
@@ -93,7 +138,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           padding: const EdgeInsets.all(24),
           child: Form(
-            key: _formKey,
+            key: formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -114,9 +159,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 _label('FULL NAME'),
                 _inputField(
-                  controller: _nameCtrl,
                   hint: 'Full Name',
                   icon: Icons.person_outline,
+                  onChanged: notifier.setName,
                   validator: (v) =>
                       v == null || v.isEmpty ? 'Enter your name' : null,
                 ),
@@ -124,10 +169,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 _label('EMAIL'),
                 _inputField(
-                  controller: _emailCtrl,
                   hint: 'Email Address',
                   icon: Icons.mail_outline,
                   keyboardType: TextInputType.emailAddress,
+                  onChanged: notifier.setEmail,
                   validator: (v) => v == null || !v.contains('@')
                       ? 'Enter valid email'
                       : null,
@@ -136,10 +181,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 _label('PHONE'),
                 _inputField(
-                  controller: _phoneCtrl,
                   hint: 'Phone Number',
                   icon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
+                  onChanged: notifier.setPhone,
                   validator: (v) =>
                       v == null || v.isEmpty ? 'Enter phone number' : null,
                 ),
@@ -147,11 +192,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 _label('PASSWORD'),
                 _passwordField(
-                  controller: _passCtrl,
                   hint: 'Password',
-                  obscure: _obscurePass,
                   icon: Icons.lock_outline,
-                  onToggle: () => setState(() => _obscurePass = !_obscurePass),
+                  obscure: formState.obscurePass,
+                  onChanged: notifier.setPassword,
+                  onToggle: notifier.toggleObscurePass,
                   validator: (v) =>
                       v == null || v.length < 6 ? 'Min 6 characters' : null,
                 ),
@@ -159,14 +204,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 _label('CONFIRM PASSWORD'),
                 _passwordField(
-                  controller: _confirmCtrl,
                   hint: 'Confirm Password',
-                  obscure: _obscureConfirm,
                   icon: Icons.lock_reset_outlined,
-                  onToggle: () =>
-                      setState(() => _obscureConfirm = !_obscureConfirm),
-                  validator: (v) =>
-                      v != _passCtrl.text ? 'Passwords do not match' : null,
+                  obscure: formState.obscureConfirm,
+                  onChanged: notifier.setConfirmPassword,
+                  onToggle: notifier.toggleObscureConfirm,
+                  validator: (v) => v != formState.password
+                      ? 'Passwords do not match'
+                      : null,
                 ),
                 const SizedBox(height: 28),
 
@@ -174,7 +219,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: _submit,
+                    onPressed: submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1A5CBA),
                       foregroundColor: Colors.white,
@@ -207,7 +252,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 52,
                   child: OutlinedButton.icon(
                     onPressed: () {},
-                    icon: _googleIcon(),
+                    icon: const Text(
+                      'G',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF4285F4),
+                      ),
+                    ),
                     label: const Text(
                       'Sign up with Google',
                       style: TextStyle(
@@ -289,59 +341,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _inputField({
-    required TextEditingController controller,
     required String hint,
     required IconData icon,
+    required ValueChanged<String> onChanged,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
-      controller: controller,
       keyboardType: keyboardType,
+      onChanged: onChanged,
       validator: validator,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFFAEB8C8)),
-        prefixIcon: Icon(icon, color: const Color(0xFFAEB8C8), size: 20),
-        filled: true,
-        fillColor: const Color(0xFFF8FAFC),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF1A5CBA), width: 1.5),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
-      ),
+      decoration: _inputDecoration(hint: hint, icon: icon),
     );
   }
 
   Widget _passwordField({
-    required TextEditingController controller,
     required String hint,
-    required bool obscure,
     required IconData icon,
+    required bool obscure,
+    required ValueChanged<String> onChanged,
     required VoidCallback onToggle,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
-      controller: controller,
       obscureText: obscure,
+      onChanged: onChanged,
       validator: validator,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFFAEB8C8)),
-        prefixIcon: Icon(icon, color: const Color(0xFFAEB8C8), size: 20),
-        suffixIcon: IconButton(
+      decoration: _inputDecoration(
+        hint: hint,
+        icon: icon,
+        suffix: IconButton(
           icon: Icon(
             obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
             color: const Color(0xFFAEB8C8),
@@ -349,36 +378,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           onPressed: onToggle,
         ),
-        filled: true,
-        fillColor: const Color(0xFFF8FAFC),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF1A5CBA), width: 1.5),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
       ),
     );
   }
 
-  Widget _googleIcon() {
-    return const Text(
-      'G',
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        color: Color(0xFF4285F4),
+  InputDecoration _inputDecoration({
+    required String hint,
+    required IconData icon,
+    Widget? suffix,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: Color(0xFFAEB8C8)),
+      prefixIcon: Icon(icon, color: const Color(0xFFAEB8C8), size: 20),
+      suffixIcon: suffix,
+      filled: true,
+      fillColor: const Color(0xFFF8FAFC),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
       ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF1A5CBA), width: 1.5),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     );
   }
 }
