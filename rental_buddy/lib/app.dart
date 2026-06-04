@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rental_buddy/features/auth/presentation/pages/register_screen.dart';
+import 'package:rental_buddy/features/auth/presentation/screens/register_screen.dart';
 import 'package:rental_buddy/features/splash/splash_screen.dart';
 import 'package:rental_buddy/themes/theme_data.dart';
 
