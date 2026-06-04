@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rental_buddy/features/auth/presentation/providers/auth_state.dart';
+import 'package:rental_buddy/features/auth/presentation/screens/login_screen.dart';
 import '../providers/auth_form_provider.dart';
 
 import '../providers/auth_provider.dart';
 import '../widgets/auth_input_field.dart';
-import '../../../../features/dashboard/home_screen.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -27,12 +27,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     ref.listen<AuthState>(authProvider, (_, next) {
       if (next is AuthSuccess) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (_) => HomeScreen(userName: next.user.name),
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Registration successful! Please login."),
+            backgroundColor: Colors.green,
           ),
-          (route) => false,
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
         );
       }
 

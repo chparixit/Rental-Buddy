@@ -9,6 +9,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
+  Hive.registerAdapter(UserModelAdapter());
 
   await Hive.openBox<UserModel>('users');
   await Hive.openBox('session');
